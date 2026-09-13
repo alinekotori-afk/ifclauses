@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dilemmas & Advice - If Clauses</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #333;
+        }
+
+        h1 {
+            color: #6c5ce7;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: #636e72;
+            margin-bottom: 40px;
+            max-width: 600px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .card {
+            background-color: transparent;
+            width: 100%;
+            height: 320px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            border-radius: 20px;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
+            box-sizing: border-box;
+        }
+
+        .card-front {
+            background: #ffffff;
+            border: 3px solid #a29bfe;
+        }
+
+        .card-back {
+            background: #a29bfe;
+            color: white;
+            transform: rotateY(180deg);
+            border: 3px solid #a29bfe;
+        }
+
+        .tag {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #fd79a8;
+        }
+
+        .card-back .tag {
+            color: #ffeaa7;
+        }
+
+        .dilemma-text {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            font-weight: 600;
+        }
+
+        .prompt-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-top: 15px;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+
+        .emoji {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Dilemmas & Advice 🔮</h1>
+    <p class="subtitle">Click on a card to flip it. Read the situation and give your best advice using the <strong>Second Conditional</strong>.</p>
+
+    <div class="grid-container">
+        <!-- Card 1 -->
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-inner">
+                <div class="card-front">
+                    <div class="emoji">📱</div>
+                    <div class="tag">Everyday Drama</div>
+                    <div class="dilemma-text">"I accidentally liked a very old photo of my crush on Instagram from 2019, and they are online right now. What should I do?"</div>
+                </div>
+                <div class="card-back">
+                    <div class="tag">Your Turn</div>
+                    <div>Start your answer with:</div>
+                    <div class="prompt-text">"If I were you, I would..."</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-inner">
+                <div class="card-front">
+                    <div class="emoji">🎂</div>
+                    <div class="tag">Everyday Drama</div>
+                    <div class="dilemma-text">"My two best friends are having their birthday parties on the exact same day and time, and they both expect me to be there."</div>
+                </div>
+                <div class="card-back">
+                    <div class="tag">Your Turn</div>
+                    <div>Start your answer with:</div>
+                    <div class="prompt-text">"If I were you, I would..."</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-inner">
+                <div class="card-front">
+                    <div class="emoji">☕</div>
+                    <div class="tag">Everyday Drama</div>
+                    <div class="dilemma-text">"I borrowed my sister's favorite jacket without asking, and I just spilled a huge cup of coffee all over it. She's coming home in an hour."</div>
+                </div>
+                <div class="card-back">
+                    <div class="tag">Your Turn</div>
+                    <div>Start your answer with:</div>
+                    <div class="prompt-text">"If I were you, I would..."</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-inner">
+                <div class="card-front">
+                    <div class="emoji">🚨</div>
+                    <div class="tag">Everyday Drama</div>
+                    <div class="dilemma-text">"I sent a voice message complaining about my math teacher, but I accidentally sent it directly to his WhatsApp! I can't delete it anymore."</div>
+                </div>
+                <div class="card-back">
+                    <div class="tag">Your Turn</div>
+                    <div>Start your answer with:</div>
+                    <div class="prompt-text">"If I were you, I would..."</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-inner">
+                <div class="card-front">
+                    <div class="emoji">🐾</div>
+                    <div class="tag">Absurd Situation</div>
+                    <div class="dilemma-text">"I just woke up, walked into my living room, and there are three female cats and two dogs looking at me. I don't own any pets!"</div>
+                </div>
+                <div class="card-back">
+                    <div class="tag">Your Turn</div>
+                    <div>Start your answer with:</div>
+                    <div class="prompt-text">"If I were you, I would..."</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-inner">
+                <div class="card-front">
+                    <div class="emoji">🤧</div>
+                    <div class="tag">Absurd Situation</div>
+                    <div class="dilemma-text">"I'm at a fancy dinner party, and right before they cut the cake, I accidentally sneezed all over it. Nobody saw me do it, but the cake is ruined."</div>
+                </div>
+                <div class="card-back">
+                    <div class="tag">Your Turn</div>
+                    <div>Start your answer with:</div>
+                    <div class="prompt-text">"If I were you, I would..."</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 7 -->
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-inner">
+                <div class="card-front">
+                    <div class="emoji">💰</div>
+                    <div class="tag">Absurd Situation</div>
+                    <div class="dilemma-text">"I was walking to school and I found a bag with $10,000 inside and a note that just says 'Run'. What should I do?"</div>
+                </div>
+                <div class="card-back">
+                    <div class="tag">Your Turn</div>
+                    <div>Start your answer with:</div>
+                    <div class="prompt-text">"If I were you, I would..."</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 8 -->
+        <div class="card" onclick="this.classList.toggle('flipped')">
+            <div class="card-inner">
+                <div class="card-front">
+                    <div class="emoji">⚡</div>
+                    <div class="tag">Absurd Situation</div>
+                    <div class="dilemma-text">"I just realized that every time I blink, I teleport one meter forward. It's getting really hard to walk normally in public."</div>
+                </div>
+                <div class="card-back">
+                    <div class="tag">Your Turn</div>
+                    <div>Start your answer with:</div>
+                    <div class="prompt-text">"If I were you, I would..."</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
