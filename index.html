@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dilemmas & Advice - Flashcards</title>
+    <title>Dilemmas & Advice - Real Deck</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
         body {
             font-family: 'Poppins', sans-serif;
-            /* Fundo Rosa Bebê */
             background: linear-gradient(135deg, #fff0f3 0%, #ffc0cb 100%);
             margin: 0;
             padding: 0;
@@ -22,36 +21,66 @@
             overflow: hidden;
         }
 
+        /* Controle de Áudio */
+        .audio-control {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #d63384;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(214, 51, 132, 0.3);
+            z-index: 1000;
+            transition: background 0.2s;
+        }
+        .audio-control:hover { background: #c22573; }
+
         h1 {
             color: #d63384;
             text-align: center;
             margin-bottom: 5px;
             font-size: 2rem;
+            z-index: 100;
         }
 
         p.subtitle {
             text-align: center;
             color: #854d63;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             font-size: 0.9rem;
+            z-index: 100;
         }
 
-        .deck-info {
-            font-size: 0.9rem;
-            color: #d63384;
-            font-weight: 600;
-            margin-bottom: 15px;
-            background: rgba(255, 255, 255, 0.5);
-            padding: 5px 15px;
-            border-radius: 20px;
-        }
-
-        .card-container {
+        /* Container do Baralho (onde as cartas se empilham) */
+        #deck-container {
+            position: relative;
             width: 320px;
             height: 420px;
+            margin-bottom: 40px;
+        }
+
+        /* Estrutura individual de cada carta */
+        .card-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             perspective: 1000px;
             cursor: pointer;
-            margin-bottom: 30px;
+            transition: transform 0.6s ease-in-out, opacity 0.5s ease;
+        }
+
+        /* Animação da carta saindo do monte */
+        .card-wrapper.fly-away {
+            transform: translateX(150%) rotate(25deg) !important;
+            opacity: 0;
+            pointer-events: none;
         }
 
         .card-inner {
@@ -61,12 +90,11 @@
             text-align: center;
             transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
             transform-style: preserve-3d;
-            box-shadow: 0 15px 35px rgba(214, 51, 132, 0.2);
+            box-shadow: -2px 5px 15px rgba(0, 0, 0, 0.1);
             border-radius: 25px;
         }
 
-        /* Classe acionada pelo clique para virar a carta */
-        .card-container.flipped .card-inner {
+        .card-wrapper.flipped .card-inner {
             transform: rotateY(180deg);
         }
 
@@ -82,9 +110,6 @@
             align-items: center;
             padding: 30px;
             box-sizing: border-box;
-        }
-
-        .card-front {
             background: #ffffff;
             border: 4px solid #ffb3c6;
         }
@@ -93,7 +118,6 @@
             background: #ffb3c6;
             color: #ffffff;
             transform: rotateY(180deg);
-            border: 4px solid #ffb3c6;
         }
 
         .tag {
@@ -113,14 +137,14 @@
         }
 
         .dilemma-text {
-            font-size: 1.2rem;
-            line-height: 1.6;
+            font-size: 1.1rem;
+            line-height: 1.5;
             font-weight: 600;
             color: #4a4a4a;
         }
 
         .prompt-text {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 600;
             margin-top: 15px;
             background: rgba(255,255,255,0.3);
@@ -130,11 +154,10 @@
         }
 
         .emoji {
-            font-size: 3.5rem;
-            margin-bottom: 15px;
+            font-size: 3rem;
+            margin-bottom: 10px;
         }
 
-        /* Estilo do botão de navegação */
         #next-btn {
             background-color: #d63384;
             color: white;
@@ -147,59 +170,45 @@
             box-shadow: 0 8px 20px rgba(214, 51, 132, 0.4);
             transition: all 0.2s ease;
             font-family: 'Poppins', sans-serif;
+            z-index: 100;
         }
 
-        #next-btn:hover {
-            background-color: #c22573;
-            transform: translateY(-3px);
-            box-shadow: 0 12px 25px rgba(214, 51, 132, 0.5);
+        #next-btn:hover { background-color: #c22573; transform: translateY(-3px); }
+        #next-btn:active { transform: translateY(1px); }
+        
+        .empty-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            color: #d63384;
+            font-weight: bold;
+            text-align: center;
+            display: none;
         }
 
-        #next-btn:active {
-            transform: translateY(1px);
-        }
-
-        /* Animação de sacar a carta do monte */
-        .draw-animation {
-            animation: slideDraw 0.5s ease-in-out;
-        }
-
-        @keyframes slideDraw {
-            0% { transform: translateX(0) scale(1) rotate(0deg); opacity: 1; }
-            40% { transform: translateX(120%) scale(0.8) rotate(15deg); opacity: 0; }
-            45% { transform: translateX(-120%) scale(0.8) rotate(-15deg); opacity: 0; }
-            100% { transform: translateX(0) scale(1) rotate(0deg); opacity: 1; }
-        }
-    </style>
+    </script>
 </head>
 <body>
 
-    <h1>Dilemmas & Advice 🔮</h1>
-    <p class="subtitle">Tap the card to flip it. Use the Second Conditional to help!</p>
-    
-    <div class="deck-info">Cards left: <span id="cards-left">8</span></div>
+    <!-- Áudio de fundo (Som ambiente de Café) -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg" type="audio/ogg">
+    </audio>
+    <button class="audio-control" onclick="toggleAudio()" id="audio-btn">🎵 Play Music</button>
 
-    <!-- Container da Carta Única -->
-    <div class="card-container" id="flashcard" onclick="this.classList.toggle('flipped')">
-        <div class="card-inner">
-            <div class="card-front">
-                <div class="emoji" id="card-emoji">📱</div>
-                <div class="tag" id="card-tag">Everyday Drama</div>
-                <div class="dilemma-text" id="card-dilemma">Loading...</div>
-            </div>
-            <div class="card-back">
-                <div class="tag">Your Turn</div>
-                <div>Start your answer with:</div>
-                <div class="prompt-text">"If I were you, I would..."</div>
-            </div>
-        </div>
+    <h1>Dilemmas & Advice 🔮</h1>
+    <p class="subtitle">Tap the top card to flip it. Click "Draw Next" to pull a new one!</p>
+
+    <!-- O monte onde as cartas serão injetadas via JavaScript -->
+    <div id="deck-container">
+        <div class="empty-message" id="empty-msg">🎉 Deck Empty!<br><br>You've answered all dilemmas!</div>
     </div>
 
-    <!-- Botão de Próxima Carta -->
-    <button id="next-btn" onclick="drawNextCard()">Draw Next Card 🃏</button>
+    <button id="next-btn" onclick="drawCard()">Draw Next Card 🃏</button>
 
     <script>
-        // Banco de Dados das Cartas
         const originalDeck = [
             { emoji: "📱", tag: "Everyday Drama", text: "I accidentally liked a very old photo of my crush on Instagram from 2019, and they are online right now. What should I do?" },
             { emoji: "🎂", tag: "Everyday Drama", text: "My two best friends are having their birthday parties on the exact same day and time, and they both expect me to be there." },
@@ -211,9 +220,9 @@
             { emoji: "⚡", tag: "Absurd Situation", text: "I just realized that every time I blink, I teleport one meter forward. It's getting really hard to walk normally in public." }
         ];
 
-        let activeDeck = [];
-        
-        // Algoritmo de Fisher-Yates para embaralhar (Shufflezinho)
+        let currentZIndex = originalDeck.length;
+
+        // Embaralha a array
         function shuffleDeck(array) {
             let currentIndex = array.length, randomIndex;
             while (currentIndex != 0) {
@@ -224,61 +233,100 @@
             return array;
         }
 
-        // Função para inicializar/reinicializar o jogo
-        function initGame() {
-            // Copia o deck original e embaralha
-            activeDeck = shuffleDeck([...originalDeck]);
-            updateCardUI();
+        // Constrói o baralho fisicamente na tela
+        function buildDeck() {
+            const container = document.getElementById('deck-container');
+            const emptyMsg = document.getElementById('empty-msg');
+            
+            // Limpa as cartas antigas mantendo a mensagem de fim de jogo
+            container.innerHTML = '';
+            container.appendChild(emptyMsg);
+            emptyMsg.style.display = 'none';
             document.getElementById('next-btn').innerHTML = "Draw Next Card 🃏";
+
+            let shuffledCards = shuffleDeck([...originalDeck]);
+            currentZIndex = shuffledCards.length;
+
+            shuffledCards.forEach((card, index) => {
+                // Cria o elemento da carta
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'card-wrapper';
+                cardDiv.setAttribute('data-index', index);
+                
+                // Aplica uma rotação leve e aleatória para parecer um monte real
+                const randomRotation = (Math.random() * 6) - 3; 
+                cardDiv.style.transform = `rotate(${randomRotation}deg)`;
+                cardDiv.style.zIndex = index + 1; // A última carta do array fica no topo
+
+                // HTML interno da carta (Frente e Verso)
+                cardDiv.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="emoji">${card.emoji}</div>
+                            <div class="tag">${card.tag}</div>
+                            <div class="dilemma-text">${card.text}</div>
+                        </div>
+                        <div class="card-back">
+                            <div class="tag">Your Turn</div>
+                            <div>Start your answer with:</div>
+                            <div class="prompt-text">"If I were you, I would..."</div>
+                        </div>
+                    </div>
+                `;
+
+                // Adiciona o evento de virar a carta ao clicar
+                cardDiv.addEventListener('click', function() {
+                    this.classList.toggle('flipped');
+                });
+
+                container.appendChild(cardDiv);
+            });
         }
 
-        // Função para puxar a próxima carta
-        function drawNextCard() {
-            const cardElement = document.getElementById('flashcard');
+        // Função para puxar a carta de cima
+        function drawCard() {
+            // Seleciona todas as cartas que ainda não voaram da tela
+            const remainingCards = Array.from(document.querySelectorAll('.card-wrapper:not(.fly-away)'));
             
-            // Se o deck acabou, reinicia o jogo
-            if (activeDeck.length === 0) {
-                initGame();
+            if (remainingCards.length === 0) {
+                // Se acabou, reconstrói o baralho
+                buildDeck();
                 return;
             }
 
-            // Remove a classe 'flipped' caso a carta esteja virada
-            cardElement.classList.remove('flipped');
-            
-            // Adiciona a animação de puxar carta
-            cardElement.classList.remove('draw-animation');
-            void cardElement.offsetWidth; // Força o reflow para reiniciar a animação
-            cardElement.classList.add('draw-animation');
+            // Encontra a carta com o maior z-index (a do topo)
+            let topCard = remainingCards.reduce((highest, card) => {
+                return (parseInt(card.style.zIndex) > parseInt(highest.style.zIndex)) ? card : highest;
+            });
 
-            // Troca o texto no meio da animação (quando está invisível)
-            setTimeout(() => {
-                activeDeck.pop(); // Remove a carta atual do monte
-                
-                if (activeDeck.length > 0) {
-                    updateCardUI();
-                } else {
-                    // Estado de deck vazio
-                    document.getElementById('card-emoji').innerText = "🎉";
-                    document.getElementById('card-tag').innerText = "Deck Empty!";
-                    document.getElementById('card-dilemma').innerText = "You've answered all dilemmas! Great job.";
-                    document.getElementById('cards-left').innerText = "0";
+            // Aplica a animação de deslizar para fora
+            topCard.classList.add('fly-away');
+
+            // Muda o texto do botão se for a última carta
+            if (remainingCards.length === 1) {
+                setTimeout(() => {
+                    document.getElementById('empty-msg').style.display = 'block';
                     document.getElementById('next-btn').innerHTML = "Shuffle & Play Again 🔀";
-                }
-            }, 250); // Metade do tempo da animação (0.5s)
+                }, 500);
+            }
         }
 
-        // Função para atualizar os textos na tela
-        function updateCardUI() {
-            const currentCard = activeDeck[activeDeck.length - 1];
-            document.getElementById('card-emoji').innerText = currentCard.emoji;
-            document.getElementById('card-tag').innerText = currentCard.tag;
-            document.getElementById('card-dilemma').innerText = currentCard.text;
-            document.getElementById('cards-left').innerText = activeDeck.length;
+        // Controle da Música
+        function toggleAudio() {
+            const audio = document.getElementById('bg-music');
+            const btn = document.getElementById('audio-btn');
+            
+            if (audio.paused) {
+                audio.play();
+                btn.innerHTML = "⏸️ Pause Music";
+            } else {
+                audio.pause();
+                btn.innerHTML = "🎵 Play Music";
+            }
         }
 
-        // Inicia o jogo ao carregar a página
-        window.onload = initGame;
-
+        // Constrói o baralho quando a página carrega
+        window.onload = buildDeck;
     </script>
 </body>
 </html>
