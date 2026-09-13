@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dilemmas & Advice - Real Deck</title>
+    <title>Dilemmas & Advice - Flashcards</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: #ffe6ea; /* Fundo Rosa Bebê Seguro */
+            background: #ffe6ea;
             background: linear-gradient(135deg, #fff0f3 0%, #ffc0cb 100%);
             margin: 0;
             padding: 0;
@@ -22,7 +22,6 @@
             overflow: hidden;
         }
 
-        /* Botão de Música no topo */
         #music-btn {
             position: absolute;
             top: 20px;
@@ -37,9 +36,7 @@
             font-weight: 600;
             box-shadow: 0 4px 10px rgba(214, 51, 132, 0.3);
             z-index: 1000;
-            transition: background 0.2s;
         }
-        #music-btn:hover { background: #c22573; }
 
         h1 {
             color: #d63384;
@@ -57,7 +54,6 @@
             z-index: 100;
         }
 
-        /* Área onde o baralho fica posicionado */
         #deck-wrapper {
             position: relative;
             width: 320px;
@@ -73,7 +69,6 @@
             height: 100%;
         }
 
-        /* Mensagem de Fim de Jogo */
         #empty-msg {
             position: absolute;
             top: 50%;
@@ -87,19 +82,18 @@
             width: 100%;
         }
 
-        /* Estrutura da Carta */
         .card-wrapper {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            -webkit-perspective: 1000px;
             perspective: 1000px;
             cursor: pointer;
             transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1), opacity 0.4s ease;
         }
 
-        /* Animação de sacar a carta para fora da tela */
         .card-wrapper.fly-away {
             transform: translateX(120vw) rotate(45deg) !important;
             opacity: 0;
@@ -112,6 +106,7 @@
             height: 100%;
             text-align: center;
             transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+            -webkit-transform-style: preserve-3d;
             transform-style: preserve-3d;
             box-shadow: -3px 5px 15px rgba(214, 51, 132, 0.25);
             border-radius: 25px;
@@ -119,12 +114,16 @@
 
         .card-wrapper.flipped .card-inner {
             transform: rotateY(180deg);
+            -webkit-transform: rotateY(180deg);
         }
 
         .card-front, .card-back {
             position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
+            -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
             border-radius: 25px;
             display: flex;
@@ -133,14 +132,20 @@
             align-items: center;
             padding: 30px;
             box-sizing: border-box;
-            background: #ffffff;
             border: 4px solid #ffb3c6;
+        }
+
+        .card-front {
+            background: #ffffff;
+            z-index: 2;
         }
 
         .card-back {
             background: #ffb3c6;
             color: #ffffff;
             transform: rotateY(180deg);
+            -webkit-transform: rotateY(180deg);
+            z-index: 1;
         }
 
         .tag {
@@ -181,7 +186,6 @@
             margin-bottom: 10px;
         }
 
-        /* Botão de Controle */
         #next-btn {
             background-color: #d63384;
             color: white;
@@ -192,29 +196,22 @@
             border-radius: 30px;
             cursor: pointer;
             box-shadow: 0 8px 20px rgba(214, 51, 132, 0.4);
-            transition: all 0.2s ease;
             font-family: 'Poppins', sans-serif;
             z-index: 100;
         }
-
-        #next-btn:hover { background-color: #c22573; transform: translateY(-3px); }
-        #next-btn:active { transform: translateY(1px); }
-
     </style>
 </head>
 <body>
 
-    <!-- Efeitos Sonoros Ocultos -->
-    <audio id="sfx-flip" src="https://actions.google.com/sounds/v1/water/water_drop.ogg" preload="auto"></audio>
-    <audio id="sfx-draw" src="https://actions.google.com/sounds/v1/paper/paper_flutter.ogg" preload="auto"></audio>
-    <audio id="bg-music" src="https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg" loop preload="auto"></audio>
+    <audio id="sfx-flip" src="https://actions.google.com/sounds/v1/water/water_drop.ogg"></audio>
+    <audio id="sfx-draw" src="https://actions.google.com/sounds/v1/paper/paper_flutter.ogg"></audio>
+    <audio id="bg-music" src="https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg" loop></audio>
 
     <button id="music-btn" onclick="toggleMusic()">🎵 Play Music</button>
 
     <h1>Dilemmas & Advice 🔮</h1>
     <p class="subtitle">Tap the top card to flip it. Click "Draw Next" to pull a new one!</p>
 
-    <!-- Área de Jogo -->
     <div id="deck-wrapper">
         <div id="empty-msg">🎉 Deck Empty!<br><br>You survived the dilemmas!</div>
         <div id="deck-container"></div>
@@ -223,7 +220,6 @@
     <button id="next-btn" onclick="drawCard()">Draw Next Card 🃏</button>
 
     <script>
-        // Banco de Cartas
         const deckData = [
             { emoji: "📱", tag: "Everyday Drama", text: "I accidentally liked a very old photo of my crush on Instagram from 2019, and they are online right now. What should I do?" },
             { emoji: "🎂", tag: "Everyday Drama", text: "My two best friends are having their birthday parties on the exact same day and time, and they both expect me to be there." },
@@ -235,7 +231,6 @@
             { emoji: "⚡", tag: "Absurd Situation", text: "I just realized that every time I blink, I teleport one meter forward. It's getting really hard to walk normally in public." }
         ];
 
-        // Função de Embaralhar
         function shuffle(array) {
             let currentIndex = array.length, randomIndex;
             while (currentIndex != 0) {
@@ -246,90 +241,89 @@
             return array;
         }
 
-        // Função para Montar o Baralho
         function initDeck() {
-            const container = document.getElementById('deck-container');
-            const emptyMsg = document.getElementById('empty-msg');
-            const nextBtn = document.getElementById('next-btn');
+            try {
+                const container = document.getElementById('deck-container');
+                const emptyMsg = document.getElementById('empty-msg');
+                const nextBtn = document.getElementById('next-btn');
 
-            container.innerHTML = ''; // Limpa a mesa
-            emptyMsg.style.display = 'none'; // Esconde a mensagem final
-            nextBtn.innerHTML = 'Draw Next Card 🃏';
+                container.innerHTML = ''; 
+                emptyMsg.style.display = 'none'; 
+                nextBtn.innerHTML = 'Draw Next Card 🃏';
 
-            const shuffledCards = shuffle([...deckData]);
+                const shuffledCards = shuffle([...deckData]);
 
-            shuffledCards.forEach((card, index) => {
-                const cardEl = document.createElement('div');
-                cardEl.className = 'card-wrapper';
-                cardEl.style.zIndex = index; // Define quem fica em cima
+                shuffledCards.forEach((card, index) => {
+                    const cardEl = document.createElement('div');
+                    cardEl.className = 'card-wrapper';
+                    cardEl.style.zIndex = index; 
 
-                // Bagunça as cartas levemente para parecer um monte real
-                const randomRot = (Math.random() * 8) - 4;
-                cardEl.style.transform = `rotate(${randomRot}deg)`;
+                    const randomRot = (Math.random() * 8) - 4;
+                    cardEl.style.transform = `rotate(${randomRot}deg)`;
 
-                cardEl.innerHTML = `
-                    <div class="card-inner">
-                        <div class="card-front">
-                            <div class="emoji">${card.emoji}</div>
-                            <div class="tag">${card.tag}</div>
-                            <div class="dilemma-text">${card.text}</div>
+                    cardEl.innerHTML = `
+                        <div class="card-inner">
+                            <div class="card-front">
+                                <div class="emoji">${card.emoji}</div>
+                                <div class="tag">${card.tag}</div>
+                                <div class="dilemma-text">${card.text}</div>
+                            </div>
+                            <div class="card-back">
+                                <div class="tag">Your Turn</div>
+                                <div>Start your answer with:</div>
+                                <div class="prompt-text">"If I were you, I would..."</div>
+                            </div>
                         </div>
-                        <div class="card-back">
-                            <div class="tag">Your Turn</div>
-                            <div>Start your answer with:</div>
-                            <div class="prompt-text">"If I were you, I would..."</div>
-                        </div>
-                    </div>
-                `;
+                    `;
 
-                // Toca o som de clique e vira a carta
-                cardEl.addEventListener('click', function() {
-                    this.classList.toggle('flipped');
-                    const sfxFlip = document.getElementById('sfx-flip');
-                    sfxFlip.currentTime = 0;
-                    sfxFlip.play().catch(e => console.log('Áudio bloqueado pelo navegador.'));
+                    cardEl.addEventListener('click', function() {
+                        this.classList.toggle('flipped');
+                        try {
+                            const sfxFlip = document.getElementById('sfx-flip');
+                            sfxFlip.currentTime = 0;
+                            sfxFlip.play().catch(() => {}); 
+                        } catch (e) {}
+                    });
+
+                    container.appendChild(cardEl);
                 });
-
-                container.appendChild(cardEl);
-            });
+            } catch (error) {
+                console.error("Erro ao carregar o baralho:", error);
+            }
         }
 
-        // Função para Sacar a Carta
         function drawCard() {
             const container = document.getElementById('deck-container');
-            // Pega apenas as cartas que ainda estão na tela
             const remainingCards = Array.from(container.querySelectorAll('.card-wrapper:not(.fly-away)'));
 
             if (remainingCards.length === 0) {
-                initDeck(); // Reinicia o jogo
+                initDeck(); 
                 return;
             }
 
-            // Toca som de puxar papel
-            const sfxDraw = document.getElementById('sfx-draw');
-            sfxDraw.currentTime = 0;
-            sfxDraw.play().catch(e => console.log('Áudio bloqueado pelo navegador.'));
+            try {
+                const sfxDraw = document.getElementById('sfx-draw');
+                sfxDraw.currentTime = 0;
+                sfxDraw.play().catch(() => {});
+            } catch (e) {}
 
-            // A última carta renderizada no HTML é a que está no topo
             const topCard = remainingCards[remainingCards.length - 1];
             topCard.classList.add('fly-away');
 
-            // Verifica se foi a última carta a sair
             if (remainingCards.length === 1) {
                 setTimeout(() => {
                     document.getElementById('empty-msg').style.display = 'block';
                     document.getElementById('next-btn').innerHTML = 'Shuffle & Play Again 🔀';
-                }, 400); // Espera a animação de saída terminar
+                }, 400); 
             }
         }
 
-        // Controle da Música de Fundo
         function toggleMusic() {
             const music = document.getElementById('bg-music');
             const btn = document.getElementById('music-btn');
 
             if (music.paused) {
-                music.play().catch(e => alert('Clique na tela pelo menos uma vez antes de tocar a música!'));
+                music.play().catch(() => alert('Clique na tela uma vez antes de iniciar a música!'));
                 btn.innerHTML = '⏸️ Pause Music';
             } else {
                 music.pause();
@@ -337,8 +331,9 @@
             }
         }
 
-        // Inicializa o baralho diretamente para evitar erros de carregamento
-        initDeck();
+        window.addEventListener('DOMContentLoaded', () => {
+            initDeck();
+        });
     </script>
 </body>
 </html>
