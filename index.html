@@ -9,6 +9,7 @@
 
         body {
             font-family: 'Poppins', sans-serif;
+            background: #ffe6ea; /* Fundo Rosa Bebê Seguro */
             background: linear-gradient(135deg, #fff0f3 0%, #ffc0cb 100%);
             margin: 0;
             padding: 0;
@@ -21,8 +22,8 @@
             overflow: hidden;
         }
 
-        /* Controle de Áudio */
-        .audio-control {
+        /* Botão de Música no topo */
+        #music-btn {
             position: absolute;
             top: 20px;
             right: 20px;
@@ -38,7 +39,7 @@
             z-index: 1000;
             transition: background 0.2s;
         }
-        .audio-control:hover { background: #c22573; }
+        #music-btn:hover { background: #c22573; }
 
         h1 {
             color: #d63384;
@@ -56,15 +57,37 @@
             z-index: 100;
         }
 
-        /* Container do Baralho (onde as cartas se empilham) */
-        #deck-container {
+        /* Área onde o baralho fica posicionado */
+        #deck-wrapper {
             position: relative;
             width: 320px;
             height: 420px;
             margin-bottom: 40px;
         }
 
-        /* Estrutura individual de cada carta */
+        #deck-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Mensagem de Fim de Jogo */
+        #empty-msg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            color: #d63384;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+            width: 100%;
+        }
+
+        /* Estrutura da Carta */
         .card-wrapper {
             position: absolute;
             top: 0;
@@ -73,12 +96,12 @@
             height: 100%;
             perspective: 1000px;
             cursor: pointer;
-            transition: transform 0.6s ease-in-out, opacity 0.5s ease;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1), opacity 0.4s ease;
         }
 
-        /* Animação da carta saindo do monte */
+        /* Animação de sacar a carta para fora da tela */
         .card-wrapper.fly-away {
-            transform: translateX(150%) rotate(25deg) !important;
+            transform: translateX(120vw) rotate(45deg) !important;
             opacity: 0;
             pointer-events: none;
         }
@@ -88,9 +111,9 @@
             width: 100%;
             height: 100%;
             text-align: center;
-            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
             transform-style: preserve-3d;
-            box-shadow: -2px 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: -3px 5px 15px rgba(214, 51, 132, 0.25);
             border-radius: 25px;
         }
 
@@ -158,6 +181,7 @@
             margin-bottom: 10px;
         }
 
+        /* Botão de Controle */
         #next-btn {
             background-color: #d63384;
             color: white;
@@ -175,55 +199,44 @@
 
         #next-btn:hover { background-color: #c22573; transform: translateY(-3px); }
         #next-btn:active { transform: translateY(1px); }
-        
-        .empty-message {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1.5rem;
-            color: #d63384;
-            font-weight: bold;
-            text-align: center;
-            display: none;
-        }
 
-    </script>
+    </style>
 </head>
 <body>
 
-    <!-- Áudio de fundo (Som ambiente de Café) -->
-    <audio id="bg-music" loop preload="auto">
-        <source src="https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg" type="audio/ogg">
-    </audio>
-    <button class="audio-control" onclick="toggleAudio()" id="audio-btn">🎵 Play Music</button>
+    <!-- Efeitos Sonoros Ocultos -->
+    <audio id="sfx-flip" src="https://actions.google.com/sounds/v1/water/water_drop.ogg" preload="auto"></audio>
+    <audio id="sfx-draw" src="https://actions.google.com/sounds/v1/paper/paper_flutter.ogg" preload="auto"></audio>
+    <audio id="bg-music" src="https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg" loop preload="auto"></audio>
+
+    <button id="music-btn" onclick="toggleMusic()">🎵 Play Music</button>
 
     <h1>Dilemmas & Advice 🔮</h1>
     <p class="subtitle">Tap the top card to flip it. Click "Draw Next" to pull a new one!</p>
 
-    <!-- O monte onde as cartas serão injetadas via JavaScript -->
-    <div id="deck-container">
-        <div class="empty-message" id="empty-msg">🎉 Deck Empty!<br><br>You've answered all dilemmas!</div>
+    <!-- Área de Jogo -->
+    <div id="deck-wrapper">
+        <div id="empty-msg">🎉 Deck Empty!<br><br>You survived the dilemmas!</div>
+        <div id="deck-container"></div>
     </div>
 
     <button id="next-btn" onclick="drawCard()">Draw Next Card 🃏</button>
 
     <script>
-        const originalDeck = [
+        // Banco de Cartas
+        const deckData = [
             { emoji: "📱", tag: "Everyday Drama", text: "I accidentally liked a very old photo of my crush on Instagram from 2019, and they are online right now. What should I do?" },
             { emoji: "🎂", tag: "Everyday Drama", text: "My two best friends are having their birthday parties on the exact same day and time, and they both expect me to be there." },
-            { emoji: "☕", tag: "Everyday Drama", text: "I borrowed my sister's favorite jacket without asking, and I just spilled a huge cup of coffee all over it. She's coming home in an hour." },
-            { emoji: "🚨", tag: "Everyday Drama", text: "I sent a voice message complaining about my math teacher, but I accidentally sent it directly to his WhatsApp! I can't delete it anymore." },
+            { emoji: "☕", tag: "Everyday Drama", text: "I borrowed my sister's favorite jacket without asking, and I just spilled a huge cup of coffee all over it." },
+            { emoji: "🚨", tag: "Everyday Drama", text: "I sent a voice message complaining about my math teacher, but I accidentally sent it directly to his WhatsApp!" },
             { emoji: "🐾", tag: "Absurd Situation", text: "I just woke up, walked into my living room, and there are three female cats and two dogs looking at me. I don't own any pets!" },
-            { emoji: "🤧", tag: "Absurd Situation", text: "I'm at a fancy dinner party, and right before they cut the cake, I accidentally sneezed all over it. Nobody saw me do it, but the cake is ruined." },
+            { emoji: "🤧", tag: "Absurd Situation", text: "I'm at a fancy dinner party, and right before they cut the cake, I accidentally sneezed all over it." },
             { emoji: "💰", tag: "Absurd Situation", text: "I was walking to school and I found a bag with $10,000 inside and a note that just says 'Run'. What should I do?" },
             { emoji: "⚡", tag: "Absurd Situation", text: "I just realized that every time I blink, I teleport one meter forward. It's getting really hard to walk normally in public." }
         ];
 
-        let currentZIndex = originalDeck.length;
-
-        // Embaralha a array
-        function shuffleDeck(array) {
+        // Função de Embaralhar
+        function shuffle(array) {
             let currentIndex = array.length, randomIndex;
             while (currentIndex != 0) {
                 randomIndex = Math.floor(Math.random() * currentIndex);
@@ -233,33 +246,28 @@
             return array;
         }
 
-        // Constrói o baralho fisicamente na tela
-        function buildDeck() {
+        // Função para Montar o Baralho
+        function initDeck() {
             const container = document.getElementById('deck-container');
             const emptyMsg = document.getElementById('empty-msg');
-            
-            // Limpa as cartas antigas mantendo a mensagem de fim de jogo
-            container.innerHTML = '';
-            container.appendChild(emptyMsg);
-            emptyMsg.style.display = 'none';
-            document.getElementById('next-btn').innerHTML = "Draw Next Card 🃏";
+            const nextBtn = document.getElementById('next-btn');
 
-            let shuffledCards = shuffleDeck([...originalDeck]);
-            currentZIndex = shuffledCards.length;
+            container.innerHTML = ''; // Limpa a mesa
+            emptyMsg.style.display = 'none'; // Esconde a mensagem final
+            nextBtn.innerHTML = 'Draw Next Card 🃏';
+
+            const shuffledCards = shuffle([...deckData]);
 
             shuffledCards.forEach((card, index) => {
-                // Cria o elemento da carta
-                const cardDiv = document.createElement('div');
-                cardDiv.className = 'card-wrapper';
-                cardDiv.setAttribute('data-index', index);
-                
-                // Aplica uma rotação leve e aleatória para parecer um monte real
-                const randomRotation = (Math.random() * 6) - 3; 
-                cardDiv.style.transform = `rotate(${randomRotation}deg)`;
-                cardDiv.style.zIndex = index + 1; // A última carta do array fica no topo
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card-wrapper';
+                cardEl.style.zIndex = index; // Define quem fica em cima
 
-                // HTML interno da carta (Frente e Verso)
-                cardDiv.innerHTML = `
+                // Bagunça as cartas levemente para parecer um monte real
+                const randomRot = (Math.random() * 8) - 4;
+                cardEl.style.transform = `rotate(${randomRot}deg)`;
+
+                cardEl.innerHTML = `
                     <div class="card-inner">
                         <div class="card-front">
                             <div class="emoji">${card.emoji}</div>
@@ -274,59 +282,63 @@
                     </div>
                 `;
 
-                // Adiciona o evento de virar a carta ao clicar
-                cardDiv.addEventListener('click', function() {
+                // Toca o som de clique e vira a carta
+                cardEl.addEventListener('click', function() {
                     this.classList.toggle('flipped');
+                    const sfxFlip = document.getElementById('sfx-flip');
+                    sfxFlip.currentTime = 0;
+                    sfxFlip.play().catch(e => console.log('Áudio bloqueado pelo navegador.'));
                 });
 
-                container.appendChild(cardDiv);
+                container.appendChild(cardEl);
             });
         }
 
-        // Função para puxar a carta de cima
+        // Função para Sacar a Carta
         function drawCard() {
-            // Seleciona todas as cartas que ainda não voaram da tela
-            const remainingCards = Array.from(document.querySelectorAll('.card-wrapper:not(.fly-away)'));
-            
+            const container = document.getElementById('deck-container');
+            // Pega apenas as cartas que ainda estão na tela
+            const remainingCards = Array.from(container.querySelectorAll('.card-wrapper:not(.fly-away)'));
+
             if (remainingCards.length === 0) {
-                // Se acabou, reconstrói o baralho
-                buildDeck();
+                initDeck(); // Reinicia o jogo
                 return;
             }
 
-            // Encontra a carta com o maior z-index (a do topo)
-            let topCard = remainingCards.reduce((highest, card) => {
-                return (parseInt(card.style.zIndex) > parseInt(highest.style.zIndex)) ? card : highest;
-            });
+            // Toca som de puxar papel
+            const sfxDraw = document.getElementById('sfx-draw');
+            sfxDraw.currentTime = 0;
+            sfxDraw.play().catch(e => console.log('Áudio bloqueado pelo navegador.'));
 
-            // Aplica a animação de deslizar para fora
+            // A última carta renderizada no HTML é a que está no topo
+            const topCard = remainingCards[remainingCards.length - 1];
             topCard.classList.add('fly-away');
 
-            // Muda o texto do botão se for a última carta
+            // Verifica se foi a última carta a sair
             if (remainingCards.length === 1) {
                 setTimeout(() => {
                     document.getElementById('empty-msg').style.display = 'block';
-                    document.getElementById('next-btn').innerHTML = "Shuffle & Play Again 🔀";
-                }, 500);
+                    document.getElementById('next-btn').innerHTML = 'Shuffle & Play Again 🔀';
+                }, 400); // Espera a animação de saída terminar
             }
         }
 
-        // Controle da Música
-        function toggleAudio() {
-            const audio = document.getElementById('bg-music');
-            const btn = document.getElementById('audio-btn');
-            
-            if (audio.paused) {
-                audio.play();
-                btn.innerHTML = "⏸️ Pause Music";
+        // Controle da Música de Fundo
+        function toggleMusic() {
+            const music = document.getElementById('bg-music');
+            const btn = document.getElementById('music-btn');
+
+            if (music.paused) {
+                music.play().catch(e => alert('Clique na tela pelo menos uma vez antes de tocar a música!'));
+                btn.innerHTML = '⏸️ Pause Music';
             } else {
-                audio.pause();
-                btn.innerHTML = "🎵 Play Music";
+                music.pause();
+                btn.innerHTML = '🎵 Play Music';
             }
         }
 
-        // Constrói o baralho quando a página carrega
-        window.onload = buildDeck;
+        // Inicializa o baralho diretamente para evitar erros de carregamento
+        initDeck();
     </script>
 </body>
 </html>
