@@ -3,48 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dilemmas & Advice - If Clauses</title>
+    <title>Dilemmas & Advice - Flashcards</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            /* Fundo Rosa Bebê */
+            background: linear-gradient(135deg, #fff0f3 0%, #ffc0cb 100%);
             margin: 0;
-            padding: 40px 20px;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            min-height: 100vh;
             color: #333;
+            overflow: hidden;
         }
 
         h1 {
-            color: #6c5ce7;
+            color: #d63384;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+            font-size: 2rem;
         }
 
         p.subtitle {
             text-align: center;
-            color: #636e72;
-            margin-bottom: 40px;
-            max-width: 600px;
+            color: #854d63;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
         }
 
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            max-width: 1200px;
-            width: 100%;
+        .deck-info {
+            font-size: 0.9rem;
+            color: #d63384;
+            font-weight: 600;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 5px 15px;
+            border-radius: 20px;
         }
 
-        .card {
-            background-color: transparent;
-            width: 100%;
-            height: 320px;
+        .card-container {
+            width: 320px;
+            height: 420px;
             perspective: 1000px;
             cursor: pointer;
+            margin-bottom: 30px;
         }
 
         .card-inner {
@@ -54,11 +61,12 @@
             text-align: center;
             transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
             transform-style: preserve-3d;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
-            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(214, 51, 132, 0.2);
+            border-radius: 25px;
         }
 
-        .card.flipped .card-inner {
+        /* Classe acionada pelo clique para virar a carta */
+        .card-container.flipped .card-inner {
             transform: rotateY(180deg);
         }
 
@@ -67,195 +75,210 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            border-radius: 20px;
+            border-radius: 25px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 25px;
+            padding: 30px;
             box-sizing: border-box;
         }
 
         .card-front {
             background: #ffffff;
-            border: 3px solid #a29bfe;
+            border: 4px solid #ffb3c6;
         }
 
         .card-back {
-            background: #a29bfe;
-            color: white;
+            background: #ffb3c6;
+            color: #ffffff;
             transform: rotateY(180deg);
-            border: 3px solid #a29bfe;
+            border: 4px solid #ffb3c6;
         }
 
         .tag {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             font-weight: 600;
-            margin-bottom: 15px;
-            color: #fd79a8;
+            margin-bottom: 20px;
+            color: #d63384;
         }
 
         .card-back .tag {
-            color: #ffeaa7;
-        }
-
-        .dilemma-text {
-            font-size: 1.1rem;
-            line-height: 1.5;
-            font-weight: 600;
-        }
-
-        .prompt-text {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-top: 15px;
-            background: rgba(255,255,255,0.2);
-            padding: 10px 15px;
+            color: #fff;
+            background: rgba(214, 51, 132, 0.3);
+            padding: 5px 12px;
             border-radius: 10px;
         }
 
+        .dilemma-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            font-weight: 600;
+            color: #4a4a4a;
+        }
+
+        .prompt-text {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-top: 15px;
+            background: rgba(255,255,255,0.3);
+            padding: 15px 20px;
+            border-radius: 15px;
+            color: #854d63;
+        }
+
         .emoji {
-            font-size: 2.5rem;
+            font-size: 3.5rem;
             margin-bottom: 15px;
+        }
+
+        /* Estilo do botão de navegação */
+        #next-btn {
+            background-color: #d63384;
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(214, 51, 132, 0.4);
+            transition: all 0.2s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        #next-btn:hover {
+            background-color: #c22573;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(214, 51, 132, 0.5);
+        }
+
+        #next-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Animação de sacar a carta do monte */
+        .draw-animation {
+            animation: slideDraw 0.5s ease-in-out;
+        }
+
+        @keyframes slideDraw {
+            0% { transform: translateX(0) scale(1) rotate(0deg); opacity: 1; }
+            40% { transform: translateX(120%) scale(0.8) rotate(15deg); opacity: 0; }
+            45% { transform: translateX(-120%) scale(0.8) rotate(-15deg); opacity: 0; }
+            100% { transform: translateX(0) scale(1) rotate(0deg); opacity: 1; }
         }
     </style>
 </head>
 <body>
 
     <h1>Dilemmas & Advice 🔮</h1>
-    <p class="subtitle">Click on a card to flip it. Read the situation and give your best advice using the <strong>Second Conditional</strong>.</p>
+    <p class="subtitle">Tap the card to flip it. Use the Second Conditional to help!</p>
+    
+    <div class="deck-info">Cards left: <span id="cards-left">8</span></div>
 
-    <div class="grid-container">
-        <!-- Card 1 -->
-        <div class="card" onclick="this.classList.toggle('flipped')">
-            <div class="card-inner">
-                <div class="card-front">
-                    <div class="emoji">📱</div>
-                    <div class="tag">Everyday Drama</div>
-                    <div class="dilemma-text">"I accidentally liked a very old photo of my crush on Instagram from 2019, and they are online right now. What should I do?"</div>
-                </div>
-                <div class="card-back">
-                    <div class="tag">Your Turn</div>
-                    <div>Start your answer with:</div>
-                    <div class="prompt-text">"If I were you, I would..."</div>
-                </div>
+    <!-- Container da Carta Única -->
+    <div class="card-container" id="flashcard" onclick="this.classList.toggle('flipped')">
+        <div class="card-inner">
+            <div class="card-front">
+                <div class="emoji" id="card-emoji">📱</div>
+                <div class="tag" id="card-tag">Everyday Drama</div>
+                <div class="dilemma-text" id="card-dilemma">Loading...</div>
             </div>
-        </div>
-
-        <!-- Card 2 -->
-        <div class="card" onclick="this.classList.toggle('flipped')">
-            <div class="card-inner">
-                <div class="card-front">
-                    <div class="emoji">🎂</div>
-                    <div class="tag">Everyday Drama</div>
-                    <div class="dilemma-text">"My two best friends are having their birthday parties on the exact same day and time, and they both expect me to be there."</div>
-                </div>
-                <div class="card-back">
-                    <div class="tag">Your Turn</div>
-                    <div>Start your answer with:</div>
-                    <div class="prompt-text">"If I were you, I would..."</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="card" onclick="this.classList.toggle('flipped')">
-            <div class="card-inner">
-                <div class="card-front">
-                    <div class="emoji">☕</div>
-                    <div class="tag">Everyday Drama</div>
-                    <div class="dilemma-text">"I borrowed my sister's favorite jacket without asking, and I just spilled a huge cup of coffee all over it. She's coming home in an hour."</div>
-                </div>
-                <div class="card-back">
-                    <div class="tag">Your Turn</div>
-                    <div>Start your answer with:</div>
-                    <div class="prompt-text">"If I were you, I would..."</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 4 -->
-        <div class="card" onclick="this.classList.toggle('flipped')">
-            <div class="card-inner">
-                <div class="card-front">
-                    <div class="emoji">🚨</div>
-                    <div class="tag">Everyday Drama</div>
-                    <div class="dilemma-text">"I sent a voice message complaining about my math teacher, but I accidentally sent it directly to his WhatsApp! I can't delete it anymore."</div>
-                </div>
-                <div class="card-back">
-                    <div class="tag">Your Turn</div>
-                    <div>Start your answer with:</div>
-                    <div class="prompt-text">"If I were you, I would..."</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 5 -->
-        <div class="card" onclick="this.classList.toggle('flipped')">
-            <div class="card-inner">
-                <div class="card-front">
-                    <div class="emoji">🐾</div>
-                    <div class="tag">Absurd Situation</div>
-                    <div class="dilemma-text">"I just woke up, walked into my living room, and there are three female cats and two dogs looking at me. I don't own any pets!"</div>
-                </div>
-                <div class="card-back">
-                    <div class="tag">Your Turn</div>
-                    <div>Start your answer with:</div>
-                    <div class="prompt-text">"If I were you, I would..."</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 6 -->
-        <div class="card" onclick="this.classList.toggle('flipped')">
-            <div class="card-inner">
-                <div class="card-front">
-                    <div class="emoji">🤧</div>
-                    <div class="tag">Absurd Situation</div>
-                    <div class="dilemma-text">"I'm at a fancy dinner party, and right before they cut the cake, I accidentally sneezed all over it. Nobody saw me do it, but the cake is ruined."</div>
-                </div>
-                <div class="card-back">
-                    <div class="tag">Your Turn</div>
-                    <div>Start your answer with:</div>
-                    <div class="prompt-text">"If I were you, I would..."</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 7 -->
-        <div class="card" onclick="this.classList.toggle('flipped')">
-            <div class="card-inner">
-                <div class="card-front">
-                    <div class="emoji">💰</div>
-                    <div class="tag">Absurd Situation</div>
-                    <div class="dilemma-text">"I was walking to school and I found a bag with $10,000 inside and a note that just says 'Run'. What should I do?"</div>
-                </div>
-                <div class="card-back">
-                    <div class="tag">Your Turn</div>
-                    <div>Start your answer with:</div>
-                    <div class="prompt-text">"If I were you, I would..."</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 8 -->
-        <div class="card" onclick="this.classList.toggle('flipped')">
-            <div class="card-inner">
-                <div class="card-front">
-                    <div class="emoji">⚡</div>
-                    <div class="tag">Absurd Situation</div>
-                    <div class="dilemma-text">"I just realized that every time I blink, I teleport one meter forward. It's getting really hard to walk normally in public."</div>
-                </div>
-                <div class="card-back">
-                    <div class="tag">Your Turn</div>
-                    <div>Start your answer with:</div>
-                    <div class="prompt-text">"If I were you, I would..."</div>
-                </div>
+            <div class="card-back">
+                <div class="tag">Your Turn</div>
+                <div>Start your answer with:</div>
+                <div class="prompt-text">"If I were you, I would..."</div>
             </div>
         </div>
     </div>
 
+    <!-- Botão de Próxima Carta -->
+    <button id="next-btn" onclick="drawNextCard()">Draw Next Card 🃏</button>
+
+    <script>
+        // Banco de Dados das Cartas
+        const originalDeck = [
+            { emoji: "📱", tag: "Everyday Drama", text: "I accidentally liked a very old photo of my crush on Instagram from 2019, and they are online right now. What should I do?" },
+            { emoji: "🎂", tag: "Everyday Drama", text: "My two best friends are having their birthday parties on the exact same day and time, and they both expect me to be there." },
+            { emoji: "☕", tag: "Everyday Drama", text: "I borrowed my sister's favorite jacket without asking, and I just spilled a huge cup of coffee all over it. She's coming home in an hour." },
+            { emoji: "🚨", tag: "Everyday Drama", text: "I sent a voice message complaining about my math teacher, but I accidentally sent it directly to his WhatsApp! I can't delete it anymore." },
+            { emoji: "🐾", tag: "Absurd Situation", text: "I just woke up, walked into my living room, and there are three female cats and two dogs looking at me. I don't own any pets!" },
+            { emoji: "🤧", tag: "Absurd Situation", text: "I'm at a fancy dinner party, and right before they cut the cake, I accidentally sneezed all over it. Nobody saw me do it, but the cake is ruined." },
+            { emoji: "💰", tag: "Absurd Situation", text: "I was walking to school and I found a bag with $10,000 inside and a note that just says 'Run'. What should I do?" },
+            { emoji: "⚡", tag: "Absurd Situation", text: "I just realized that every time I blink, I teleport one meter forward. It's getting really hard to walk normally in public." }
+        ];
+
+        let activeDeck = [];
+        
+        // Algoritmo de Fisher-Yates para embaralhar (Shufflezinho)
+        function shuffleDeck(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        // Função para inicializar/reinicializar o jogo
+        function initGame() {
+            // Copia o deck original e embaralha
+            activeDeck = shuffleDeck([...originalDeck]);
+            updateCardUI();
+            document.getElementById('next-btn').innerHTML = "Draw Next Card 🃏";
+        }
+
+        // Função para puxar a próxima carta
+        function drawNextCard() {
+            const cardElement = document.getElementById('flashcard');
+            
+            // Se o deck acabou, reinicia o jogo
+            if (activeDeck.length === 0) {
+                initGame();
+                return;
+            }
+
+            // Remove a classe 'flipped' caso a carta esteja virada
+            cardElement.classList.remove('flipped');
+            
+            // Adiciona a animação de puxar carta
+            cardElement.classList.remove('draw-animation');
+            void cardElement.offsetWidth; // Força o reflow para reiniciar a animação
+            cardElement.classList.add('draw-animation');
+
+            // Troca o texto no meio da animação (quando está invisível)
+            setTimeout(() => {
+                activeDeck.pop(); // Remove a carta atual do monte
+                
+                if (activeDeck.length > 0) {
+                    updateCardUI();
+                } else {
+                    // Estado de deck vazio
+                    document.getElementById('card-emoji').innerText = "🎉";
+                    document.getElementById('card-tag').innerText = "Deck Empty!";
+                    document.getElementById('card-dilemma').innerText = "You've answered all dilemmas! Great job.";
+                    document.getElementById('cards-left').innerText = "0";
+                    document.getElementById('next-btn').innerHTML = "Shuffle & Play Again 🔀";
+                }
+            }, 250); // Metade do tempo da animação (0.5s)
+        }
+
+        // Função para atualizar os textos na tela
+        function updateCardUI() {
+            const currentCard = activeDeck[activeDeck.length - 1];
+            document.getElementById('card-emoji').innerText = currentCard.emoji;
+            document.getElementById('card-tag').innerText = currentCard.tag;
+            document.getElementById('card-dilemma').innerText = currentCard.text;
+            document.getElementById('cards-left').innerText = activeDeck.length;
+        }
+
+        // Inicia o jogo ao carregar a página
+        window.onload = initGame;
+
+    </script>
 </body>
 </html>
